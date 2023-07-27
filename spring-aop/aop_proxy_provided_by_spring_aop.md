@@ -80,3 +80,59 @@ flowchart LR
 
 ## Proxy 생성해보기
 
+```java
+// Unit.java
+
+public interface Unit {
+
+    String getName();
+
+    String getDescription();
+
+}
+
+// EngineControlUnit.java
+
+@Service
+public class EngineControlUnit implements Unit {
+
+    private static String name = "engine control unit";
+
+    private static String description = "An engine control unit (ECU), also called an engine control module (ECM)" +
+            ", is a device which controls multiple systems of an internal combustion engine in a single unit. " +
+            "Systems commonly controlled by an ECU include the fuel injection and ignition systems.";
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+    
+}
+```
+
+`Enhancer` 를 통해 위와 같이 정의된 클래스를 CGLib Proxy 객체를 생성 할 수 있다. 
+아래와 같이 Superclass 를 지정하고, callback 함수를 설정해주면 메소드가 호출될 시 callback 메소드가 호출된다.
+
+```java
+Enhancer enhancer = new Enhancer();
+enhancer.setSuperclass(EngineControlUnit.class);
+enhancer.setCallback((FixedValue) ()-> "Hello CGLib!");
+EngineControlUnit proxy = (EngineControlUnit) enhancer.create();
+```
+
+또한 Callback 설정 시 `MethodInterceptor` 를 사용하면 좀 더 구체적인 구현이 가능하다.
+
+```java
+enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy)-> {
+    if(method.getName().equals("getDescription"))
+        return value;
+
+    return proxy.invokeSuper(obj, args);
+});
+```
+

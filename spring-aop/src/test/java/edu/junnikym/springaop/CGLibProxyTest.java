@@ -3,6 +3,7 @@ package edu.junnikym.springaop;
 import edu.junnikym.springaop.unit.EngineControlUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.FixedValue;
@@ -12,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class CGLibProxyTest {
+
+	@Autowired
+	EngineControlUnit engineControlUnit;
 
 	@Test
 	@DisplayName("CGLib Proxy 생성 테스트 - 단순 데이터 변경")
@@ -54,6 +58,18 @@ class CGLibProxyTest {
 		/* then */
 		assertEquals(name, "engine control unit");
 		assertEquals(desc, value);
+	}
+
+	@Test
+	@DisplayName("CGLib Proxy 생성 테스트 - Bean 등록")
+	void CGLib_Proxy_빈_등록_테스트() {
+		/* given */
+
+		/* when */
+		final String name = engineControlUnit.getName();
+
+		/* then */
+		assertEquals(name, "ENGINE CONTROL UNIT");
 	}
 
 }
