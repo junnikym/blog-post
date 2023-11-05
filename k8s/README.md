@@ -68,3 +68,71 @@ Node Components 는 각 노드에서 Pod 와 컨테이너를 구동하고 관리
 <sup>* ref: [nhn cloud Kubernetes 이해하기 중 ..](https://www.youtube.com/watch?v=9zwHZ6Xi8CA) </sup>
 
 <sup>* ref: https://seongjin.me/kubernetes-cluster-components </sup>
+
+### Pod 는 무엇인가?
+
+Pod 는 1개 이상의 컨테이너가 캡슐화 되어 클러스터 안에 배포되는 가장 작은 단위의 객체이다.
+Pod 는 여러개의 컨테이너를 포함할 수 있으며, 하나의 노드에 배포된다.
+
+Pod를 구성하는 방법은 <sup>(1)</sup>kubectl 을 사용하는 방법과 <sup>(2)</sup>YAML 파일을 정의하여 구성하는 방법이 있다. 두가지 방법을 사용하여 아래와 같이 Single-Container Pod 를 구성할 수 있다.
+
+#### kubectl 설치
+
+Single-Container Pod 을 구성하기 전, kubectl 설치를 하여 환경을 구성하여야한다.
+MacOS 에서는 `brew install kubectl` 를 통하여 설치 할 수 있다. 
+이 외의 방법 또는 다른 OS 에서 설치를 위해 [설치 가이드](https://kubernetes.io/ko/docs/tasks/tools/)를 참고.
+
+필자는 설치 후 `kubectl cluster-info` 명령을 입력하였을 때, 아래와 같은 에러가 발생하였다.
+```
+The connection to the server <server-name:port> was refused - did you specify the right host or port?
+```
+
+구성된 클러스터가 없기에 나는 애러이며, `kubectl config view` 명령을 통해 확인 할 수 있다. 
+Docker Desktop 에서 `setting -> kubernetets -> enable kubernetes` 를 통해 간단하게 환경을 구성할 수 있으며, minikube 등.. 을 활용하는 방법도 있다.
+
+#### 1. kubectl 을 사용하여 Single-container Pod 구성
+
+Master Node 에서 `kubectl run <pad name> --image=<image name>` 형태의 명령을 통해 간편하게 배포할 수 있다. 
+해당 명령을 사용하여 아래와 같이 Nginx Pod 를 구성 할 수 있다.
+
+``` sh 
+kubectl run nginx --image=nginx
+```
+
+#### 2. YAML 파일을 정의하여 Single-container Pod 구성
+
+YAML 파일을 정의 후 `kubectl apply --f <yaml file name>` 명령을 통해 Pod 를 구성 할 수 있다. YAML 파일은 아래와 같은 형태로 정의 할 수 있다.
+
+``` yaml 
+apiVersion: v1              # Kubernetes API Version
+kind: Pod                   # Object Type; Pod 을 구성하기 위해 Pod 으로 설정
+metadata:                   # Object 식별을 위한 정보
+  name: nginx               #   - Object name
+  labels:                   #   - Pod 구동에 영향을 주지않는 순수 Key-Value 메타데이터 영역
+    app: nginx              #     원하는 Key-Value 를 부여할 수 있다.
+spec:                       # Object의 상태 정의
+  containers:               #   - 실제 Pod 에 달길 컨테이너의 속성 
+  - name: nginx-container   #     docker-compose 와 유사하다.
+    image: nginx
+```
+
+#### 구성된 Pod 확인 및 관리
+
+위와 같이 Pod 를 구성 후, `kubectl get pods` 명령을 통해 어떤 Pod 가 생성되었는지 알 수 있다. 이 외에도 아래 명령어를 통해 Pod 를 관리할 수 있다.
+
+``` sh
+# Pod 상세 정보
+kube describe pod <pod name> 
+
+# Pod 내부 로그 확인
+kube logs <pod name>
+
+# Pod 설정 수정
+kubectl edit pod <pod name>
+
+# Pod 내 컨테이너에 접속하여 sh 실행
+kubectl exec -it <pod name> -- /bin/sh
+
+# Pod 삭제 
+kubectl delete pod <pod name>
+```
