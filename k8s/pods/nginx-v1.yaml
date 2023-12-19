@@ -1,0 +1,10 @@
+apiVersion: v1              # Kubernetes API Version
+kind: Pod                   # Object Type; Pod 을 구성하기 위해 Pod 으로 설정
+metadata:                   # Object 식별을 위한 정보
+  name: nginx               #   - Object name
+  labels:                   #   - Pod 구동에 영향을 주지않는 순수 Key-Value 메타데이터 영역
+    app: nginx              #     원하는 Key-Value 를 부여할 수 있다.
+spec:                       # Object의 상태 정의
+  containers:               #   - 실제 Pod 에 달길 컨테이너의 속성 
+  - name: nginx-container   #     docker-compose 와 유사하다.
+    image: nginx
