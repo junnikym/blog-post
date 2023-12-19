@@ -155,4 +155,59 @@ kubectl exec -it <pod name> <container name> ...
 
 <sub> * ref: https://seongjin.me/kubernetes-pods/</sub>
 
-## Deployment
+## Workload resources in K8s
+
+쿠버네티스에는 대표적으로 `ReplicaSet`, `Deployment`, `StatefulSet`, `DaemonSet` 등.. 의 워크로드 리소스가 존재한다. 
+
+### ReplicaSet
+
+서비스를 안정적으로 구성할때, 다운타임을 없애려고 n개의 파드를 동시에 운영하게된다. 이 때, 같은 어플리케이션을 동시에 구동하는 파드들의 집합을 `ReplicaSet` 이라 한다.
+
+K8s 의 중요한 개념 중 하나가 선언적 구성이다. 특정 동작을 지시하는 것이 아닌, 특정한 상태의 유지를 선언하는 것으로 시스템을 구성하는 개념이다. **ReplicaSet 은 규격에 정의된 수 만큼의 파드가 정상 구동될 수 있도록 보장한다.** 3개의 Pod 를 선언하였는데 특정 Pod 가 고장났다면 해당 파드를 복제하여 가용한 워커 노드에 다시 채워넣어 상태를 유지한다.
+
+#### ReplicaSet 생성
+
+```
+apiVersion: apps/v1 
+kind: ReplicaSet
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: backend
+  template:
+    metadata:
+      labels:
+        tier: backend
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+```
+
+여기서 주의사항은 `apiVersion` 이 `apps/v1` 이라는 점과, selector 의 `matchLables` 와 template 의 `metadata.labels` 는 동일해야한다는 점이다.
+
+ReplicaSet 또한 `get`, `describe`, `delete` 등.. 기본 커맨드를 활용할 수 있다. 아래와 같이 명령하여 ReplicaSet 을 실행하고 관리할 수 있다.
+
+``` sh
+# ReplicaSet 신규 배포
+kubectl create -f k8s/workload-resources/replica-set.yaml
+
+# ReplicaSet 정보 조회
+kubectl get rs 
+kubectl get replicaset
+
+kubectl describe rs/nginx
+
+# Replica 수 조정
+kubectl scale --replicas=6 -f <file name>
+kubectl scale --replicas=6 replicaset <app name>
+
+# ReplicaSet 삭제
+kubectl delete rs nginx
+```
